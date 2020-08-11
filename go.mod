@@ -1,4 +1,4 @@
-module cascadeenv
+module github.com/abbychau/cascadeenv
 
 go 1.14
 
