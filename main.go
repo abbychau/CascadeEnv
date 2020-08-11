@@ -35,6 +35,9 @@ func loadAndCheckEnv(names []string, filename string) bool {
 	return checkOSEnv(names)
 }
 func checkAWSParamStore(names []string, session *session.Session) bool {
+	if session == nil {
+		return false
+	}
 	awsParamStore := ssm.New(session)
 	for _, name := range names {
 		res, err := awsParamStore.GetParameter(&ssm.GetParameterInput{
@@ -53,6 +56,9 @@ func checkAWSParamStore(names []string, session *session.Session) bool {
 //InitEnvVar init and checks os env for a list of names against ENV variables/ENV file/AWS ParamStore
 func InitEnvVar(names []string, envFilename string, session *session.Session) error {
 	// log.Info().Msg("ENV Checking. Loaded from OS.")
+	if len(names) == 0 {
+		return fmt.Errorf("You cannot check 0 length of names")
+	}
 	if !checkOSEnv(names) {
 		if !loadAndCheckEnv(names, envFilename) {
 			if !checkAWSParamStore(names, session) {
