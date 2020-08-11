@@ -13,9 +13,9 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func checkOSEnv(names []string) bool {
+func checkOSEnv(names *[]string) bool {
 	log.Info().Msg("Check Loaded ENV...")
-	for _, name := range names {
+	for _, name := range *names {
 		if os.Getenv(name) == "" {
 			log.Info().Msgf("Cannot load ENV var: %s from environment...", name)
 
@@ -25,7 +25,7 @@ func checkOSEnv(names []string) bool {
 	return true
 }
 
-func loadAndCheckEnv(names []string, filename string) bool {
+func loadAndCheckEnv(names *[]string, filename string) bool {
 	log.Info().Msg("Check .ENV file...")
 	err := godotenv.Load(filename)
 	if err != nil {
@@ -36,12 +36,12 @@ func loadAndCheckEnv(names []string, filename string) bool {
 	log.Info().Msg("ENV file loaded; will check Environment Again...")
 	return checkOSEnv(names)
 }
-func checkAWSParamStore(names []string, session *session.Session) bool {
+func checkAWSParamStore(names *[]string, session *session.Session) bool {
 	if session == nil {
 		return false
 	}
 	awsParamStore := ssm.New(session)
-	for _, name := range names {
+	for _, name := range *names {
 		res, err := awsParamStore.GetParameter(&ssm.GetParameterInput{
 			Name:           aws.String(name),
 			WithDecryption: aws.Bool(true),
@@ -61,9 +61,9 @@ func InitEnvVar(names []string, envFilename string, session *session.Session) er
 	if len(names) == 0 {
 		return fmt.Errorf("You cannot check 0 length of names")
 	}
-	if !checkOSEnv(names) {
-		if !loadAndCheckEnv(names, envFilename) {
-			if !checkAWSParamStore(names, session) {
+	if !checkOSEnv(&names) {
+		if !loadAndCheckEnv(&names, envFilename) {
+			if !checkAWSParamStore(&names, session) {
 				return fmt.Errorf("Neither OS nor ENV File nor AWS ParamStore has all the required names.")
 			}
 		}

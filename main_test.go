@@ -10,7 +10,7 @@ import (
 
 func Test_checkOSEnv(t *testing.T) {
 	type args struct {
-		names []string
+		names *[]string
 	}
 	os.Setenv("a", "1")
 	os.Setenv("b", "2")
@@ -21,12 +21,12 @@ func Test_checkOSEnv(t *testing.T) {
 	}{
 		{
 			name: "1",
-			args: args{names: []string{"a", "b"}},
+			args: args{names: &[]string{"a", "b"}},
 			want: true,
 		},
 		{
 			name: "2",
-			args: args{names: []string{"c", "d"}},
+			args: args{names: &[]string{"c", "d"}},
 			want: false,
 		},
 	}
@@ -41,7 +41,7 @@ func Test_checkOSEnv(t *testing.T) {
 
 func Test_loadAndCheckEnv(t *testing.T) {
 	type args struct {
-		names    []string
+		names    *[]string
 		filename string
 	}
 	tests := []struct {
@@ -51,12 +51,12 @@ func Test_loadAndCheckEnv(t *testing.T) {
 	}{
 		{
 			name: "1",
-			args: args{names: []string{"a1", "b1"}, filename: "test.ENV"},
+			args: args{names: &[]string{"a1", "b1"}, filename: "test.ENV"},
 			want: true,
 		},
 		{
 			name: "2",
-			args: args{names: []string{"c", "d"}, filename: "test.ENV"},
+			args: args{names: &[]string{"c", "d"}, filename: "test.ENV"},
 			want: false,
 		},
 	}
@@ -71,7 +71,7 @@ func Test_loadAndCheckEnv(t *testing.T) {
 
 func Test_checkAWSParamStore(t *testing.T) {
 	type args struct {
-		names   []string
+		names   *[]string
 		session *session.Session
 	}
 	tests := []struct {
@@ -81,7 +81,7 @@ func Test_checkAWSParamStore(t *testing.T) {
 	}{
 		{
 			name: "1",
-			args: args{names: []string{"a1", "b1"}, session: nil},
+			args: args{names: &[]string{"a1", "b1"}, session: nil},
 			want: false,
 		},
 	}
