@@ -2,6 +2,7 @@ package cascadeenv
 
 import (
 	"os"
+	"reflect"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -124,6 +125,50 @@ func TestInitEnvVar(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if err := InitEnvVar(tt.args.names, tt.args.envFilename, tt.args.session); (err != nil) != tt.wantErr {
 				t.Errorf("InitEnvVar() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestExportEnvVar(t *testing.T) {
+	type args struct {
+		names       []string
+		types       []reflect.Kind
+		envFilename string
+		session     *session.Session
+	}
+	os.Setenv("a", "1")
+	os.Setenv("b", "string")
+	tests := []struct {
+		name    string
+		args    args
+		want    map[string]interface{}
+		wantErr bool
+	}{
+		{
+			name: "1",
+			args: args{
+				names:       []string{"a", "b"},
+				types:       []reflect.Kind{reflect.Int64, reflect.String},
+				envFilename: "test.ENV",
+				session:     nil,
+			},
+			want: map[string]interface{}{
+				"a": int64(1),
+				"b": "string",
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := ExportEnvVar(tt.args.names, tt.args.types, tt.args.envFilename, tt.args.session)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ExportEnvVar() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ExportEnvVar() = %v, want %v", got, tt.want)
 			}
 		})
 	}
