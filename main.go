@@ -14,12 +14,17 @@ import (
 )
 
 func checkOSEnv(names *[]string) bool {
-	log.Info().Msg("Check Loaded ENV...")
+	log.Info().Msgf("Checking following loaded names: %v", names)
 	for _, name := range *names {
-		if os.Getenv(name) == "" {
+		str, success := os.LookupEnv(name)
+		if !success {
 			log.Info().Msgf("Cannot load ENV var: %s from environment...", name)
 
 			return false
+		}
+
+		if str == "" {
+			log.Info().Msgf("Note: ENV var: %s from environment is \"\"", name)
 		}
 	}
 	return true
@@ -33,7 +38,7 @@ func loadAndCheckEnv(names *[]string, filename string) bool {
 
 		return false
 	}
-	log.Info().Msg("ENV file loaded; will check Environment Again...")
+	log.Info().Msg("ENV file loaded.")
 	return checkOSEnv(names)
 }
 func checkAWSParamStore(names *[]string, session *session.Session) bool {
@@ -80,17 +85,20 @@ func ExportEnvVar(names []string, types []reflect.Kind, envFilename string, sess
 		return ret, err
 	}
 	for i, name := range names {
-		readString := os.Getenv(name)
+		readString, success := os.LookupEnv(name)
+		if !success {
+			return nil, fmt.Errorf(name + " is nil.")
+		}
 		if types[i] == reflect.Int64 {
 			val, err := strconv.ParseInt(readString, 10, 64)
 			if err != nil {
-				return nil, fmt.Errorf(name + " has to be an Int64")
+				return nil, fmt.Errorf(name + " has to be an Int64.")
 			}
 			ret[name] = val
 		} else if types[i] == reflect.Float64 {
 			val, err := strconv.ParseFloat(readString, 64)
 			if err != nil {
-				return nil, fmt.Errorf(name + " has to be an Float64")
+				return nil, fmt.Errorf(name + " has to be an Float64.")
 			}
 			ret[name] = val
 		} else {

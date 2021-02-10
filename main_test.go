@@ -59,6 +59,11 @@ func Test_loadAndCheckEnv(t *testing.T) {
 			args: args{names: &[]string{"c", "d"}, filename: "test.ENV"},
 			want: false,
 		},
+		{
+			name: "2",
+			args: args{names: &[]string{"c1", "c2"}, filename: "test.ENV"},
+			want: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -112,7 +117,7 @@ func TestInitEnvVar(t *testing.T) {
 		},
 		{
 			name:    "2",
-			args:    args{names: []string{"a1", "b1"}, envFilename: "test2.ENV", session: nil},
+			args:    args{names: []string{"a13", "b13"}, envFilename: "test2.ENV", session: nil},
 			wantErr: true,
 		},
 		{
@@ -158,6 +163,31 @@ func TestExportEnvVar(t *testing.T) {
 				"b": "string",
 			},
 			wantErr: false,
+		},
+		{
+			name: "2",
+			args: args{
+				names:       []string{"c1", "c2"},
+				types:       []reflect.Kind{reflect.String, reflect.String},
+				envFilename: "test.ENV",
+				session:     nil,
+			},
+			want: map[string]interface{}{
+				"c1": "",
+				"c2": "",
+			},
+			wantErr: false,
+		},
+		{
+			name: "3",
+			args: args{
+				names:       []string{"c3"},
+				types:       []reflect.Kind{reflect.String},
+				envFilename: "test.ENV",
+				session:     nil,
+			},
+			want:    map[string]interface{}{},
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
